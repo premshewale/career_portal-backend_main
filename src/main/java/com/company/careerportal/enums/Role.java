@@ -1,4 +1,4 @@
-package com.company.carrerportal.enums;
+package com.company.careerportal.enums;
 
 public enum Role {
     CANDIDATE, COMPANY, ADMIN
