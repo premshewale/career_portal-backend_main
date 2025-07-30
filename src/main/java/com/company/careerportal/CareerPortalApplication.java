@@ -11,7 +11,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 //@EntityScan(basePackages = "com.company.carrerportal.entity")
 //@ComponentScan(basePackages = "com.company.carrerportal")
 public class CareerPortalApplication {
-    public static void main(String[] args) {
-        SpringApplication.run(CareerPortalApplication.class, args);
-    }
+	public static void main(String[] args) {
+		SpringApplication.run(CareerPortalApplication.class, args);
+	}
 }
