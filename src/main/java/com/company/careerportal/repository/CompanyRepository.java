@@ -9,6 +9,6 @@ import com.company.careerportal.entity.Company;
 @Repository
 public interface CompanyRepository extends JpaRepository<Company, Long> {
     boolean existsByEmail(String email);
-    Optional<Company> findByEmail(String email); // cleaner and safer
+    Optional<Company> findByEmail(String email); 
 }
 	

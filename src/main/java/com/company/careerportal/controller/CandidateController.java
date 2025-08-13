@@ -65,14 +65,11 @@ public class CandidateController {
 		}
 
 	}
-	
-	
+
 	@PostMapping("/logout")
 	public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
-	    request.getSession().invalidate();
-	    return ResponseEntity.ok("Logged out");
+		request.getSession().invalidate();
+		return ResponseEntity.ok("Logged out");
 	}
-
-	
 
 }
