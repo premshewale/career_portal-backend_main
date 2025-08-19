@@ -17,4 +17,7 @@ public interface JobService {
     List<JobDto> getAllJobs();
     
 	JobDto getJobById(Long jobId);
+	
+	List<ApplicationDto> getApplicantsByCompany(Long companyId);
+	
 }

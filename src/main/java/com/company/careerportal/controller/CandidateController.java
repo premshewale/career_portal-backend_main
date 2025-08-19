@@ -71,5 +71,12 @@ public class CandidateController {
 		request.getSession().invalidate();
 		return ResponseEntity.ok("Logged out");
 	}
+	
+	@GetMapping("/all")
+    public ResponseEntity<?> getAllCandidates() {
+        return ResponseEntity.ok(candidateService.getAllCandidates());
+    }
+
+	
 
 }

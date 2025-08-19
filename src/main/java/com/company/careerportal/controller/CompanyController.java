@@ -1,6 +1,5 @@
 package com.company.careerportal.controller;
 
-import com.company.careerportal.dto.CandidateRegistrationDto;
 import com.company.careerportal.dto.CompanyDto;
 import com.company.careerportal.services.CompanyService;
 
@@ -28,19 +27,19 @@ public class CompanyController {
 			return ResponseEntity.badRequest().body("Registration failed: " + e.getMessage());
 		}
 	}
+
 	@PostMapping("/login")
 	public ResponseEntity<?> login(@RequestBody CompanyDto dto) {
-	    System.out.println("Company login attempt for email: " + dto.getEmail());
-	    try {
-	        CompanyDto result = companyService.login(dto.getEmail(), dto.getPassword());
-	        return ResponseEntity.ok(result);
-	    } catch (RuntimeException e) {
-	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password");
-	    } catch (Exception e) {
-	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Login error");
-	    }
+		System.out.println("Company login attempt for email: " + dto.getEmail());
+		try {
+			CompanyDto result = companyService.login(dto.getEmail(), dto.getPassword());
+			return ResponseEntity.ok(result);
+		} catch (RuntimeException e) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password");
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Login error");
+		}
 	}
-
 
 	@GetMapping("/all")
 	public ResponseEntity<?> getAllCompanies() {

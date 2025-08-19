@@ -1,4 +1,4 @@
-			package com.company.careerportal.controller;
+package com.company.careerportal.controller;
 
 import com.company.careerportal.dto.JobDto;
 import com.company.careerportal.dto.ApplicationDto;
@@ -136,4 +136,17 @@ public class JobController {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
 		}
 	}
+	    
+
+	    // ✅ Get all applicants for a company
+	    @GetMapping("/applicants/{companyId}")
+	    public ResponseEntity<List<ApplicationDto>> getApplicantsByCompany(@PathVariable Long companyId) {
+	        List<ApplicationDto> applicants = jobService.getApplicantsByCompany(companyId);
+	        return ResponseEntity.ok(applicants);
+	    }
+	
+	
+	
+	
+	
 }

@@ -18,7 +18,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -58,7 +57,7 @@ public class JobServiceImpl implements JobService {
 		if (!jobRepository.existsById(jobId)) {
 			throw new RuntimeException("Job not found with id: " + jobId);
 		}
-		// delete applications first to avoid FK issues if cascade not configured
+
 		List<Application> apps = applicationRepository.findByJobId(jobId);
 		if (!apps.isEmpty()) {
 			applicationRepository.deleteAll(apps);
@@ -107,7 +106,7 @@ public class JobServiceImpl implements JobService {
 		app.setJob(job);
 
 		if (resume != null && !resume.isEmpty()) {
-			// limit or validation can be added here
+
 			app.setResume(resume.getBytes());
 			String fname = resume.getOriginalFilename();
 			app.setResumeFilename(fname != null ? fname : "resume");
@@ -126,15 +125,26 @@ public class JobServiceImpl implements JobService {
 			throw new RuntimeException("No resume uploaded for application id: " + applicationId);
 		return app.getResume();
 	}
-	
-	
-	
+
 	@Override
 	@Transactional(readOnly = true)
 	public JobDto getJobById(Long jobId) {
-	    Job job = jobRepository.findById(jobId)
-	            .orElseThrow(() -> new RuntimeException("Job not found with id: " + jobId));
-	    return toJobDto(job);
+		Job job = jobRepository.findById(jobId)
+				.orElseThrow(() -> new RuntimeException("Job not found with id: " + jobId));
+		return toJobDto(job);
+	}
+
+	@Override
+	public List<ApplicationDto> getApplicantsByCompany(Long companyId) {
+		List<Job> companyJobs = jobRepository.findByCompanyId(companyId);
+
+		List<Long> jobIds = companyJobs.stream().map(Job::getId).collect(Collectors.toList());
+
+		List<Application> applications = applicationRepository.findByJobIdIn(jobIds);
+
+		return applications.stream().map(this::toApplicationDto)
+
+				.collect(Collectors.toList());
 	}
 
 	/* ----------------- Helpers ----------------- */
@@ -164,8 +174,8 @@ public class JobServiceImpl implements JobService {
 	}
 
 	@Override
-    @Transactional(readOnly = true)
-    public List<JobDto> getAllJobs() {
-        return jobRepository.findAll().stream().map(this::toJobDto).collect(Collectors.toList());
-    }
+	@Transactional(readOnly = true)
+	public List<JobDto> getAllJobs() {
+		return jobRepository.findAll().stream().map(this::toJobDto).collect(Collectors.toList());
+	}
 }
