@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,6 +21,9 @@ public class CandidateServiceImpl implements CandidateService {
 
 	@Autowired
 	private CandidateRepository candidateRepository;
+
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 
 	@Override
 	public CandidateRegistrationDto registerCandidate(CandidateRegistrationDto dto, MultipartFile resume,
@@ -39,6 +43,9 @@ public class CandidateServiceImpl implements CandidateService {
 			throw new RuntimeException("Error processing uploaded files: " + e.getMessage());
 		}
 
+		// ✅ hash password before saving
+		dto.setPassword(passwordEncoder.encode(dto.getPassword()));
+
 		Candidate saved = candidateRepository.save(dto.toEntity());
 		return saved.toDTO();
 	}
@@ -55,12 +62,16 @@ public class CandidateServiceImpl implements CandidateService {
 			if (resume != null && !resume.isEmpty()) {
 				candidate.setResume(resume.getBytes());
 			}
-
 			if (photo != null && !photo.isEmpty()) {
 				candidate.setPhoto(photo.getBytes());
 			}
 		} catch (IOException e) {
 			throw new RuntimeException("Error processing uploaded files: " + e.getMessage());
+		}
+
+		// ✅ if updating password, hash it too
+		if (dto.getPassword() != null && !dto.getPassword().isEmpty()) {
+			candidate.setPassword(passwordEncoder.encode(dto.getPassword()));
 		}
 
 		return candidateRepository.save(candidate).toDTO();
@@ -88,7 +99,6 @@ public class CandidateServiceImpl implements CandidateService {
 	private void updateFields(Candidate candidate, CandidateRegistrationDto dto) {
 		candidate.setUsername(dto.getUsername());
 		candidate.setEmail(dto.getEmail());
-		candidate.setPassword(dto.getPassword());
 		candidate.setName(dto.getName());
 		candidate.setMobile(dto.getMobile());
 		candidate.setStatus(dto.getStatus());
@@ -105,19 +115,15 @@ public class CandidateServiceImpl implements CandidateService {
 	}
 
 	@Override
-	public CandidateRegistrationDto authenticate(String email, String password) {
-		Optional<Candidate> optionalCandidate = candidateRepository.findByEmail(email);
+	public CandidateRegistrationDto authenticate(String email, String rawPassword) {
+		Candidate candidate = candidateRepository.findByEmail(email)
+				.orElseThrow(() -> new RuntimeException("Candidate not found"));
 
-		if (optionalCandidate.isPresent()) {
-			Candidate candidate = optionalCandidate.get();
-			if (candidate.getPassword().equals(password)) {
-				return candidate.toDTO();
-			} else {
-				throw new RuntimeException("Invalid credentials");
-			}
+		// ✅ compare raw password with hashed one
+		if (passwordEncoder.matches(rawPassword, candidate.getPassword())) {
+			return candidate.toDTO();
 		} else {
-			throw new RuntimeException("Candidate not found");
+			throw new RuntimeException("Invalid credentials");
 		}
 	}
-
 }
